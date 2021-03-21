@@ -11,7 +11,8 @@ const elementUSD = document.querySelector('[data-value="USD"]'),
 // Элементы формы, ввод суммы, выбор валюты, поле с результатом
 const input = document.querySelector("#input"),
     result = document.querySelector("#result"),
-    select = document.querySelector("#select");
+    give = document.querySelector("#give"),
+    receive = document.querySelector("#receive");
 
 // Функция получения курса валют
 function getCurrencies() {
@@ -22,6 +23,9 @@ function getCurrencies() {
             rates.USD = data.Valute.USD;
             rates.EUR = data.Valute.EUR;
             rates.GBP = data.Valute.GBP;
+            rates.UAH = data.Valute.UAH;
+            rates.BYN = data.Valute.BYN;
+            rates.AMD = data.Valute.AMD;
         }).then(() => showCurrencies());
 }
 
@@ -36,7 +40,7 @@ function showCurrencies() {
         elementUSD.classList.add("bottom");
     }
 
-    // Цвет для ифнормера EUR
+    // Цвет для ифнормера EUR 
     if (rates.EUR.value > rates.EUR.Previous) {
         elementEUR.classList.add("top");
     } else if (rates.EUR.value === rates.EUR.Previous) {
@@ -56,7 +60,7 @@ function showCurrencies() {
 
     elementUSD.textContent = rates.USD.Value.toFixed(2);
     elementEUR.textContent = rates.EUR.Value.toFixed(2);
-    elementGBP.textContent = rates.GBP.Value.toFixed(2)
+    elementGBP.textContent = rates.GBP.Value.toFixed(2);
 }
 
 getCurrencies();
@@ -64,9 +68,35 @@ setInterval(getCurrencies(), 10000);
 
 // Функция конвертации
 function convertValue() {
-    result.value = (input.value / rates[select.value].Value).toFixed(2);
+    if (give.value === "RUB") {
+        if (this.id === "result") {
+            input.value = (result.value * rates[receive.value].Value).toFixed(2);
+        } else {
+            result.value = (input.value / rates[receive.value].Value).toFixed(2);
+        }
+    } else if (give.value === "UAH") {
+        if (this.id === "result") {
+            input.value = ((result.value / rates.UAH.Nominal) * rates[give.value].Value / rates[receive.value].Value).toFixed(2);
+        } else {
+            result.value = ((input.value / rates.UAH.Nominal) * rates[give.value].Value / rates[receive.value].Value).toFixed(2);
+        }
+    } else if ((give.value === "BYN")) {
+        if (this.id === "result") {
+            input.value = ((result.value * rates[give.value].Value) / rates[receive.value].Value).toFixed(2);
+        } else {
+            result.value = ((input.value * rates[give.value].Value) / rates[receive.value].Value).toFixed(2);
+        }
+    } else if ((give.value === "AMD")) {
+        if (this.id === "result") {
+            input.value = ((result.value / (rates.AMD.Nominal / rates.AMD.Value)) * rates[receive.value].Value).toFixed(2);
+        } else {
+            result.value = ((input.value / (rates.AMD.Nominal / rates.AMD.Value)) / rates[receive.value].Value).toFixed(2);
+        }
+    }
 }
 
 // Слушаем изменения в текстовом поле и в select
-input.addEventListener("input", convertValue); 
-select.addEventListener("input", convertValue);
+input.addEventListener("input", convertValue);
+result.addEventListener("input", convertValue);
+give.addEventListener("input", convertValue);
+receive.addEventListener("input", convertValue);
